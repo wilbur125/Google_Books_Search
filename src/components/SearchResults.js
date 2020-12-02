@@ -39,6 +39,16 @@ class SearchResults extends Component {
       event.preventDefault();
       this.searchBooks(this.state.search);
   };
+
+    handleViewLink = () => {
+      let url = this.state.result.items[0].accessInfo.webReaderLink;
+      document.location = url;
+      return false;   
+    }
+
+    handleSaveBook = () => {
+
+    }
   
     render() {
       if (this.state.result.items === undefined) {
@@ -60,7 +70,8 @@ class SearchResults extends Component {
                                 authors={this.state.result.items[0].volumeInfo.authors[0]} 
                                 description={this.state.result.items[0].volumeInfo.description} 
                                 src={this.state.result.items[0].volumeInfo.imageLinks.smallThumbnail}  
-                                link={this.state.result.items[0].accessInfo.webReaderLink} 
+                                handleViewLink={this.handleViewLink}
+                                handleSaveBook={this.handleSaveBook}
                             />
                         
                     </Row>
