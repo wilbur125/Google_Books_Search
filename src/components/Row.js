@@ -1,7 +1,5 @@
 import React from "react";
 
-function Row(props) {
-  return <div className={`row${props.fluid ? "-fluid" : ""}`}>{props.children}</div>;
+export function Row({children}) {
+  return <div className="row">{children}</div>;
 }
-
-export default Row;

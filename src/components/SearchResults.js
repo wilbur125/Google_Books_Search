@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import API from '../utils/API';
 import SearchForm from "./SearchForm";
-import SearchDetails from "./SearchDetails";
+import { SearchDetails } from "./SearchDetails";
 import Container from "./Container";
-import Row from "./Row";
+import { Row } from "./Row";
 
 
 
@@ -15,15 +15,35 @@ class SearchResults extends Component {
     };
   
     componentDidMount() {
-        this.searchBooks("Harry Potter");
+        this.searchBooks("Hunger Games");
     };
 
     searchBooks = query => {
         API.getBooks(query)
-          .then(res => {
-              console.log(res.data.items[0])
-          
-            this.setState({ result: res.data })})
+          .then(result => {
+          this.setState({ result: result.data })})
+          .then( result => {
+            let apiData = this.state.result;
+            let finalData = []
+            
+            for (let i = 0; i < this.state.result.items; i++) {
+
+              let books = 
+
+              {
+                'id': i + 1,
+                'title': apiData.items[i].volumeInfo.title,
+                'authors': apiData.items[i].volumeInfo.authors,
+                'description':apiData.items[i].volumeInfo.description,
+                'src': apiData.items[i].volumeInfo.imageLinks.smallThumbnail,
+                'link': apiData.items[i].accessInfo.webReaderLink
+              }
+              finalData.push(books)
+            }
+            this.setState({
+              result: finalData
+            })
+          })
           .catch(err => console.log(err));
       };
 
@@ -41,7 +61,7 @@ class SearchResults extends Component {
   };
 
     handleViewLink = () => {
-      let url = this.state.result.items[0].accessInfo.webReaderLink;
+      let url = this.result.link;
       document.location = url;
       return false;   
     }
@@ -50,19 +70,17 @@ class SearchResults extends Component {
       //initialize variables
       //make json object to put into db
       //save to db
-
-      // const db = mongoose.connection;
-      // db.on('error', console.error.bind(console, 'connection error:'));
-      // db.once('open', function() {
-      //   // we're connected!
-      // });
+      //error message
+      //success message
     }
   
     render() {
       if (this.state.result.items === undefined) {
-        return <span>Loading...</span>;
+        return null;
+
     }
-        console.log('wut', this.state.result.items)
+
+        console.log('Component Did Mount Results', this.state.result.items)
       return (
 
             <Container>
@@ -71,18 +89,28 @@ class SearchResults extends Component {
                         handleInputChange={this.handleInputChange}
                         handleFormSubmit={this.handleFormSubmit}
                     />
-                    <Row>
-                        
-                            <SearchDetails 
-                                title={this.state.result.items[0].volumeInfo.title}
-                                authors={this.state.result.items[0].volumeInfo.authors[0]} 
-                                description={this.state.result.items[0].volumeInfo.description} 
-                                src={this.state.result.items[0].volumeInfo.imageLinks.smallThumbnail}  
-                                handleViewLink={this.handleViewLink}
-                                handleSaveBook={this.handleSaveBook}
-                            />
-                        
-                    </Row>
+                    <div>
+                    {this.state.result.items.length ? (
+                      <Row>
+                        {this.state.result.items.map(result => (
+                          <SearchDetails key={result.id}>
+                            <h5>{result.title}</h5>
+                            <div class="button">
+                            <button onClick={this.handleViewLink}>View</button>
+                            <button onClick={this.handleSaveBook}>Save</button>
+                            </div>    
+                            <p>Written by: {result.authors}</p>
+                            <div>
+                            <img alt={result.title} className="img-fluid" src={result.src} style={{ margin: "0 auto" }} />
+                            <span>{result.description}</span>
+                            </div>
+                            </SearchDetails>
+                        ))}
+                      </Row>
+                    ) : (
+                      <h6>Search for a book</h6>
+                    )}
+                    </div>
             </Container>
      
       );
